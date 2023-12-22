@@ -2,283 +2,163 @@
 # Fan Cheng, 2022
 
 import random
+from matrix_base import Matrix_base
 
 class Matrix:
-	r"""
-	自定义的二维矩阵类
-
-	Args:
-		data: 一个二维的嵌套列表，表示矩阵的数据。即 data[i][j] 表示矩阵第 i+1 行第 j+1 列处的元素。
-			  当参数 data 不为 None 时，应根据参数 data 确定矩阵的形状。默认值: None
-		dim: 一个元组 (n, m) 表示矩阵是 n 行 m 列, 当参数 data 为 None 时，根据该参数确定矩阵的形状；
-			 当参数 data 不为 None 时，忽略该参数。如果 data 和 dim 同时为 None, 应抛出异常。默认值: None
-		init_value: 当提供的 data 参数为 None 时，使用该 init_value 初始化一个 n 行 m 列的矩阵，
-					即矩阵各元素均为 init_value. 当参数 data 不为 None 时，忽略该参数。 默认值: 0
-	
-	Attributes:
-		dim: 一个元组 (n, m) 表示矩阵的形状
-		data: 一个二维的嵌套列表，表示矩阵的数据
-
-	Examples:
-		>>> mat1 = Matrix(dim=(2, 3), init_value=0)
-		>>> print(mat1)
-		>>> [[0 0 0]
-			 [0 0 0]]
-		>>> mat2 = Matrix(data=[[0, 1], [1, 2], [2, 3]])
-		>>> print(mat2)
-		>>> [[0 1]
-			 [1 2]
-			 [2 3]]
-	"""
 	def __init__(self, data=None, dim=None, init_value=0):
-		# self.data
-		# self.dim
-		pass
+		if data != None:
+			self.data={e.copy() for e in data}
+			self.dim=(len(data),len(data[0]))
+		elif dim!=None:
+			super('Matrix',self).__init__(dim,init_value)
+		else:
+			raise ValueError('Wrong init paramter')
+
+	# 重载copy防止copy出基类
+	def copy(self):
+		cp=Matrix(self.data)
+		return cp
 
 	def shape(self):
-		r"""
-		返回矩阵的形状 dim
-		"""
-		pass
+		return self.dim
 
 	def reshape(self, newdim):
-		r"""
-		将矩阵从(m,n)维拉伸为newdim=(m1,n1)
-		该函数不改变 self
-		
-		Args:
-			newdim: 一个元组 (m1, n1) 表示拉伸后的矩阵形状。如果 m1 * n1 不等于 self.dim[0] * self.dim[1],
-					应抛出异常
-		
-		Returns:
-			Matrix: 一个 Matrix 类型的返回结果, 表示 reshape 得到的结果
-		"""
-		pass
+		if newdim[0]*newdim[1]!=self.dim[0]*self.dim[1]:
+			raise ValueError('The new dimission isn\'t equal to the old.')
+		# 先接一串，再分割
+		t_lst=[]
+		for e in self.data:
+			t_lst.extend(e)
+		t_data=[]
+		for i in range(newdim[0]):
+			t_data.append(t_data[i*newdim[1]:(i+1)*newdim[1]])
+		return Matrix(t_data)
 
+	'''基类中已经实现
 	def dot(self, other):
-		r"""
-		矩阵乘法：矩阵乘以矩阵
-		按照公式 A[i, j] = \sum_k B[i, k] * C[k, j] 计算 A = B.dot(C)
-
-		Args:
-			other: 参与运算的另一个 Matrix 实例
-		
-		Returns:
-			Matrix: 计算结果
-		
-		Examples:
-			>>> A = Matrix(data=[[1, 2], [3, 4]])
-			>>> A.dot(A)
-			>>> [[ 7 10]
-				 [15 22]]
-		"""
-		pass
-
+		pass'''
+	# 转置
 	def T(self):
-		r"""
-		矩阵的转置
-
-		Returns:
-			Matrix: 矩阵的转置
-
-		Examples:
-			>>> A = Matrix(data=[[1, 2], [3, 4]])
-			>>> A.T()
-			>>> [[1 3]
-				 [2 4]]
-			>>> B = Matrix(data=[[1, 2, 3], [4, 5, 6]])
-			>>> B.T()
-			>>> [[1 4]
-				 [2 5]
-				 [3 6]]
-		"""
-		pass 
+		n_data=[]
+		for j in range(res.dim[1]):
+			t_data=[]
+			for i in range(res.dim[0]):
+				t_data.append(self.data[i][j])
+			n_data.append(t_data)
+		return Matrix(n_data)
 
 	def sum(self, axis=None): 
-		r"""
-		根据指定的坐标轴对矩阵元素进行求和
-
-		Args:
-			axis: 一个整数，或者 None. 默认值: None
-				  axis = 0 表示对矩阵进行按列求和，得到形状为 (1, self.dim[1]) 的矩阵
-				  axis = 1 表示对矩阵进行按行求和，得到形状为 (self.dim[0], 1) 的矩阵
-				  axis = None 表示对矩阵全部元素进行求和，得到形状为 (1, 1) 的矩阵
+		#当然可以只实现一种然后让另一种转置，这里为了性能没有这么做
+		match(axis):
+			case 0:
+				t_data=[]
+				for j in range(self.dim[1]):
+					s=0
+					for i in range(self.dim[0]):
+						s+=self.data[i][j]
+					t_data.append(s)
+				return Matrix(t_data)
+			case 1:
+				return Matrix([[sum(self.data[i])] for i in range(self.dim[0])])
+			case _:
+				#没有定义异常值的处理，这里选择全部捕获
+				return Matrix([sum([sum(self.data[i]) for i in range(self.dim[0])])])
 		
-		Returns:
-			Matrix: 一个 Matrix 类的实例，表示求和结果
-
-		Examples:
-			>>> A = Matrix(data=[[1, 2, 3], [4, 5, 6]])
-			>>> A.sum()
-			>>> [[21]]
-			>>> A.sum(axis=0)
-			>>> [[5 7 9]]
-			>>> A.sum(axis=1)
-			>>> [[6]
-				 [15]]
-		"""
-		pass
-
-	def copy(self):
-		r"""
-		返回matrix的一个备份
-
-		Returns:
-			Matrix: 一个self的备份
-		"""
-		pass
 
 	def Kronecker_product(self, other):
-		r"""
-		计算两个矩阵的Kronecker积，具体定义可以搜索，https://baike.baidu.com/item/克罗内克积/6282573
-
-		Args:
-			other: 参与运算的另一个 Matrix
-
-		Returns:
-			Matrix: Kronecke product 的计算结果
-		"""
-		pass
+		d0,d1=other.dim[0],other.dim[1]
+		res=Matrix(dim=(self.dim[0]*d0,self.dim[1]*d1),init_value=0)
+		for ai in range(self.dim[0]):
+			for aj in range(self.dim[1]):
+				for bi in range(d0):
+					for bj in range(d1):
+						res[ai*d0+bi][aj*d1+bj]=self.data[ai][aj]*other.data[bi][bj]
+		return res
 	
 	def __getitem__(self, key):
-		r"""
-		实现 Matrix 的索引功能，即 Matrix 实例可以通过 [] 获取矩阵中的元素（或子矩阵）
-
-		x[key] 具备以下基本特性：
-		1. 单值索引
-			x[a, b] 返回 Matrix 实例 x 的第 a 行, 第 b 列处的元素 (从 0 开始编号)
-		2. 矩阵切片
-			x[a:b, c:d] 返回 Matrix 实例 x 的一个由 第 a, a+1, ..., b-1 行, 第 c, c+1, ..., d-1 列元素构成的子矩阵
-			特别地, 需要支持省略切片左(右)端点参数的写法, 如 x 是一个 n 行 m 列矩阵, 那么
-			x[:b, c:] 的语义等价于 x[0:b, c:m]
-			x[:, :] 的语义等价于 x[0:n, 0:m]
-
-		Args:
-			key: 一个元组，表示索引
-
-		Returns:
-			索引结果，单个元素或者矩阵切片
-
-		Examples:
-			>>> x = Matrix(data=[
-						[0, 1, 2, 3],
-						[4, 5, 6, 7],
-						[8, 9, 0, 1]
-					])
-			>>> x[1, 2]
-			>>> 6
-			>>> x[0:2, 1:4]
-			>>> [[1 2 3]
-				 [5 6 7]]
-			>>> x[:, :2]
-			>>> [[0 1]
-				 [4 5]
-				 [8 9]]
-		"""
-		pass
+		if not isinstance(key,turple) and len(key)!=2:
+			raise ValueError('The index should be a turple whose lenghth is 2')
+		#这里支持了step第三个切片
+		def format_slice(id):
+			if key[id].start==None:
+				key[id].start=0
+			if key[id].stop==None:
+				key[id].stop=self.dim[id]
+			if key[id].step==None:
+				key[id].step=1
+		if isinstance(key[0],slice) and isinstance(key[1],slice):
+			format_slice(0)
+			format_slice(1)
+			t_lst=0
+			for i in range(key[0].start,key[0].stop,key[0].step):
+				tt_lst=[]
+				for j in range(key[1].start,key[1].stop,key[1].step):
+					tt_lst.append(self.data[i][j])
+				t_lst.append(tt_lst)
+			return Matrix(t_lst)
+		else:
+			return self.data[key[0]][key[1]]
 
 	def __setitem__(self, key, value):
-		r"""
-		实现 Matrix 的赋值功能, 通过 x[key] = value 进行赋值的功能
-
-		类似于 __getitem__ , 需要具备以下基本特性:
-		1. 单元素赋值
-			x[a, b] = k 的含义为，将 Matrix 实例 x 的 第 a 行, 第 b 处的元素赋值为 k (从 0 开始编号)
-		2. 对矩阵切片赋值
-			x[a:b, c:d] = value 其中 value 是一个 (b-a)行(d-c)列的 Matrix 实例
-			含义为, 将由 Matrix 实例 x 的第 a, a+1, ..., b-1 行, 第 c, c+1, ..., d-1 列元素构成的子矩阵 赋值为 value 矩阵
-			即 子矩阵的 (i, j) 位置赋值为 value[i, j]
-			同样地, 这里也需要支持如 x[:b, c:] = value, x[:, :] = value 等省略写法
-		
-		Args:
-			key: 一个元组，表示索引
-			value: 赋值运算的右值，即要赋的值
-
-		Examples:
-			>>> x = Matrix(data=[
-						[0, 1, 2, 3],
-						[4, 5, 6, 7],
-						[8, 9, 0, 1]
-					])
-			>>> x[1, 2] = 0
-			>>> x
-			>>> [[0 1 2 3]
-				 [4 5 0 7]
-				 [8 9 0 1]]
-			>>> x[1:, 2:] = Matrix(data=[[1, 2], [3, 4]])
-			>>> x
-			>>> [[0 1 2 3]
-				 [4 5 1 2]
-				 [8 9 3 4]]
-		"""
-		pass
+		if not isinstance(key,turple) and len(key)!=2:
+			raise ValueError('The index should be a turple whose lenghth is 2')
+		#这里支持了step第三个切片
+		def format_slice(id):
+			if key[id].start==None:
+				key[id].start=0
+			if key[id].stop==None:
+				key[id].stop=self.dim[id]
+			if key[id].step==None:
+				key[id].step=1
+		if isinstance(key[0],slice) and isinstance(key[1],slice):
+			format_slice(0)
+			format_slice(1)
+			# 这里支持了把某一块全部设为一个值
+			t_mat=None
+			if isinstance(value,Matrix):
+				t_mat=value
+			else:
+				t_mat=Matrix(dim=self.dim,init_value=value)
+			for i in range(key[0].start,key[0].stop,key[0].step):
+				for j in range(key[1].start,key[1].stop,key[1].step):
+					self.data[i][j]=t_mat[i][j]
+		else:
+			if isinstance(value,Matrix):
+				raise ValueError('The right value should be a number')
+			self.data[key[0]][key[1]]=value
 
 	def __pow__(self, n):
-		r"""
-		矩阵的n次幂，n为自然数
-		该函数应当不改变 self 的内容
-
-		Args:
-			n: int, 自然数
-
-		Returns:
-			Matrix: 运算结果
-		"""
-		pass
+		if n<0 or int(n)!=n:
+			raise ValueError('n should be a natural number')
+		if self.dim[0]!=self.dim[1]:
+			raise ValueError('The matrix should be a square matrix')
+		# 快速幂
+		res=Matrix.I(self.dim[0])
+		t_m=self.copy()
+		while n>0:
+			if n&1:
+				res=res.dot(t_m)
+			t_m.dot(t_m)
+			n>>=1
+		return res
 
 	def __add__(self, other):
-		r"""
-		两个矩阵相加
-		该函数应当不改变 self 和 other 的内容
-
-		Args:
-			other: 一个 Matrix 实例
-		
-		Returns:
-			Matrix: 运算结果
-		"""
-		pass
+		return self.add(other)
 
 	def __sub__(self, other):
-		r"""
-		两个矩阵相减
-		该函数应当不改变 self 和 other 的内容
-
-		Args:
-			other: 一个 Matrix 实例
-		
-		Returns:
-			Matrix: 运算结果
-		"""
-		pass
+		return self.add(other.kmul(-1))
 
 	def __mul__(self, other):
-		r"""
-		两个矩阵 对应位置 元素  相乘
-		注意 不是矩阵乘法dot
-		该函数应当不改变 self 和 other 的内容
-
-		Args:
-			other: 一个 Matrix 实例
-		
-		Returns:
-			Matrix: 运算结果
-
-		Examples:
-			>>> Matrix(data=[[1, 2]]) * Matrix(data=[[3, 4]])
-			>>> [[3 8]]
-		"""
-		pass
-
+		if self.dim!=other.dim:
+			raise ValueError('Dimisions of the two matrix must be the same.')
+		res=Matrix(dim=(self.dim[0],self.dim[1]))
+		for i in range(self.dim[0]):
+			for j in range(self.dim[1]):
+				res.data[i][j] = self.data[i][j]*other.data[i][j]
+		return res
 
 	def __len__(self):
-		r"""
-		返回矩阵元素的数目
-
-		Returns:
-			int: 元素数目，即 行数 * 列数
-		"""
-		pass
+		return self.dim[0]*self.dim[1]
 
 	def __str__(self):
 		r"""
@@ -289,20 +169,32 @@ class Matrix:
  		的格式将矩阵表示为一个 字符串
  		！！！ 注意返回值是字符串
 		"""
-		pass
+		res='['
+		for i in range(self.dim[0]):
+			res+='['
+			for j in range(self.dim[1]):
+				res+=f'\t{self.data[i][j]}'
+			res+=']' if i==self.dim[0]-1 else']\n'
+		return res
 
 	def det(self):
-		r"""
-		计算方阵的行列式。对于非方阵的情形应抛出异常。
-		要求: 该函数应不改变 self 的内容; 该函数的时间复杂度应该不超过 O(n**3).
-		提示: Gauss消元
-		
-		Returns:
-			一个 Python int 或者 float, 表示计算结果
-		"""
-		pass
+		# 原理：初等变换不改变行列式的值
+		# 这里直接对行和列分别高斯消元得到一个对角阵，再对对角阵进行对角元累乘
+		if self.dim[0]!=self.dim[1]:
+			raise ValueError('The Matrix should be a square matrix')
+		# 两套消元
+		t_m=self.copy()
+		st=t_m.guass()
+		t_m=t_m.T()
+		st+=t_m.guass()
+		# 累乘
+		res=1
+		for i in range(self.dim[0]):
+			res*=t_n[i][i]
+		return res*(-1)**st
 
 	def inverse(self):
+		# 用了经典的拼接原矩阵和单位矩阵进行高斯消元
 		r"""
 		计算非奇异方阵的逆矩阵。对于非方阵或奇异阵的情形应抛出异常。
 		要求: 该函数应不改变 self 的内容; 该函数的时间复杂度应该不超过 O(n**3).
@@ -311,168 +203,95 @@ class Matrix:
 		Returns:
 			Matrix: 一个 Matrix 实例，表示逆矩阵
 		"""
-		pass
-
+		if self.dim[0]!=self.dim[1]:
+			raise ValueError('The matrix should be a square matrix')
+		eye=self.I(self.dim[0])
+		t_m=self.concatenate((self,eye),0)
+		t_m.guass()
+		# 先检验是否是奇异阵
+		if t_m.get_not_zero_row_num()!=t_m.dim[0]:
+			raise ValueError('The matrix is a singular matrix')
+		else:
+			return t_m[self.dim[0]:self.dim[0]*2][self.dim[1]:self.dim[1]*2]
+		
+	#求矩阵秩
 	def rank(self):
-		r"""
-		计算矩阵的秩
-		要求: 该函数应不改变 self 的内容; 该函数的时间复杂度应该不超过 O(n**3).
-		提示: Gauss消元
-
-		Returns:
-			一个 Python int 表示计算结果
-		"""
-		pass
+		t=self.copy()
+		t.gauss()
+		return t.get_not_zero_row_num()
 
 def I(n):
-	'''
-	return an n*n unit matrix
-	'''
+	res=Matrix(dim=(n,n))
+	for i in range(n):
+		res.data[i][i]=1
+	return res
 
-def narray(dim, init_value=1): # dim (,,,,,), init为矩阵元素初始值
-	r"""
-	返回一个matrix，维数为dim，初始值为init_value
-	
-	Args:
-		dim: Tuple[int, int] 表示矩阵形状
-		init_value: 表示初始值，默认值: 1
+def narray(dim, init_value=1):
+	return Matrix(dim=dim,init_value=init_value)
 
-	Returns:
-		Matrix: 一个 Matrix 类型的实例
-	"""
-	#return Matrix(dim, None, init_value)
-
-def arange(start, end, step):
-	r"""
-	返回一个1*n 的 narray 其中的元素类同 range(start, end, step)
-
-	Args:
-		start: 起始点(包含)
-		end: 终止点(不包含)
-		step: 步长
-
-	Returns:
-		Matrix: 一个 Matrix 实例
-	"""
+def arange(start, end, step=1):
+	n=(end-start)//step
+	res=Matrix(dim=(1,n))
+	res.data=list(range(start,end,step))
 	pass
 
 def zeros(dim):
-	r"""
-	返回一个维数为dim 的全0 narray
-
-	Args:
-		dim: Tuple[int, int] 表示矩阵形状
-
-	Returns:
-		Matrix: 一个 Matrix 类型的实例
-	"""
-	pass
+	return Matrix(dim=dim,init_value=0)
 
 def zeros_like(matrix):
-	r"""
-	返回一个形状和matrix一样 的全0 narray
-
-	Args:
-		matrix: 一个 Matrix 实例
-	
-	Returns:
-		Matrix: 一个 Matrix 类型的实例
-
-	Examples:
-		>>> A = Matrix(data=[[1, 2, 3], [2, 3, 4]])
-		>>> zeros_like(A)
-		>>> [[0 0 0]
-			 [0 0 0]]
-	"""
-	pass
+	return Matrix(dim=matrix.dim,init_value=0)
 
 def ones(dim):
-	r"""
-	返回一个维数为dim 的全1 narray
-	类同 zeros
-	"""
-	pass
+	return Matrix(dim=dim,init_value=1)
 
 def ones_like(matrix):
-	r"""
-	返回一个维数和matrix一样 的全1 narray
-	类同 zeros_like
-	"""
-	pass
+	return Matrix(dim=matrix.dim,init_value=1)
 
 def nrandom(dim):
-	r"""
-	返回一个维数为dim 的随机 narray
-	参数与返回值类型同 zeros
-	"""
-	pass
+	res=Matrix(dim=dim)
+	for i in range(dim[0]):
+		for j in range(dim[1]):
+			res.data[i][j]=random.random()
+	return res
 
 def nrandom_like(matrix):
-	r"""
-	返回一个维数和matrix一样 的随机 narray
-	参数与返回值类型同 zeros_like
-	"""
-	pass
+	dim=matrix.dim
+	res=Matrix(dim=dim)
+	for i in range(dim[0]):
+		for j in range(dim[1]):
+			res.data[i][j]=random.random()
+	return res
 
 def concatenate(items, axis=0):
-	r"""
-	将若干矩阵按照指定的方向拼接起来
-	若给定的输入在形状上不对应，应抛出异常
-	该函数应当不改变 items 中的元素
-
-	Args:
-		items: 一个可迭代的对象，其中的元素为 Matrix 类型。
-		axis: 一个取值为 0 或 1 的整数，表示拼接方向，默认值 0.
-			  0 表示在第0维即行上进行拼接
-			  1 表示在第1维即列上进行拼接
-	
-	Returns:
-		Matrix: 一个 Matrix 类型的拼接结果
-
-	Examples:
-		>>> A, B = Matrix([[0, 1, 2]]), Matrix([[3, 4, 5]])
-		>>> concatenate((A, B))
-		>>> [[0 1 2]
-			 [3 4 5]]
-		>>> concatenate((A, B, A), axis=1)
-		>>> [[0 1 2 3 4 5 0 1 2]]
-	"""
 	pass
-
+	if axis==0:
+		res=next(items).copy()
+		for mat in items:
+			if mat.dim[0]!=res.dim[0]:
+				raise ValueError('The matrixs to be oncatenated should have proper size')
+			for i in range(mat.dim[0]):
+				res.data[i].extend(mat.data[i])
+	else:
+		res=next(items).copy()
+		for mat in items:
+			if mat.dim[1]!=res.dim[1]:
+				raise ValueError('The matrixs to be oncatenated should have proper size')
+			for e in mat.data:
+				res.append(e)
+			
+#其实就是让实现一个类似装饰器的效果
+#将给定函数进行向量化
 def vectorize(func):
-	r"""
-	将给定函数进行向量化
-	
-	Args:
-		func: 一个Python函数
-	
-	Returns:
-		一个向量化的函数 F: Matrix -> Matrix, 它的参数是一个 Matrix 实例 x, 返回值也是一个 Matrix 实例；
-		它将函数 func 作用在 参数 x 的每一个元素上
-	
-	Examples:
-		>>> def func(x):
-				return x ** 2
-		>>> F = vectorize(func)
-		>>> x = Matrix([[1, 2, 3],[2, 3, 1]])
-		>>> F(x)
-		>>> [[1 4 9]
-			 [4 9 1]]
-		>>> 
-		>>> @vectorize
-		>>> def my_abs(x):
-				if x < 0:
-					return -x
-				else:
-					return x
-		>>> y = Matrix([[-1, 1], [2, -2]])
-		>>> my_abs(y)
-		>>> [[1, 1]
-			 [2, 2]]
-	"""
-	pass
+	def inner(mat):
+		for i in range(mat.dim[0]):
+			for j in range(mat.dim[1]):
+				mat.data[i][j]=func(mat.data[i][j])
+	return inner
 
 
 if __name__ == "__main__":
 	print("test here")
+	data=[[5,2,4],[5,2,5],[0,3,4]];
+	A=Matrix(data)
+	det(A)
 	pass
