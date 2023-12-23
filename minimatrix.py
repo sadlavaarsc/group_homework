@@ -2,6 +2,7 @@
 # Fan Cheng, 2022
 
 import random
+import math
 from matrix_base import Matrix_base
 
 class Matrix(Matrix_base):
@@ -15,7 +16,6 @@ class Matrix(Matrix_base):
 			super().__init__(dim,init_value)
 		else:
 			raise ValueError('Wrong init paramter')
-
 	# 重载copy防止copy出基类
 	def copy(self):
 		cp=Matrix(self.data)
@@ -33,12 +33,21 @@ class Matrix(Matrix_base):
 			t_lst.extend(e)
 		t_data=[]
 		for i in range(newdim[0]):
-			t_data.append(t_data[i*newdim[1]:(i+1)*newdim[1]])
+			t_data.append(t_lst[i*newdim[1]:(i+1)*newdim[1]])
+		self.dim=newdim
 		return Matrix(t_data)
 
-	'''基类中已经实现
-	def dot(self, other):
-		pass'''
+	def dot(self, mat):
+		if self.dim[1] != mat.dim[0]:
+			raise ValueError(
+                "Number of columns in the first matrix must be equal to the number of rows in the second matrix.")
+		result = Matrix(dim=(self.dim[0], mat.dim[1]))
+		for i in range(self.dim[0]):
+			for j in range(mat.dim[1]):
+				for k in range(self.dim[1]):
+					result.data[i][j] += self.data[i][k] * mat.data[k][j]
+		return result
+
 	# 转置
 	def T(self):
 		n_data=[]
@@ -64,7 +73,7 @@ class Matrix(Matrix_base):
 				return Matrix([[sum(self.data[i])] for i in range(self.dim[0])])
 			case _:
 				#没有定义异常值的处理，这里选择全部捕获
-				return Matrix([sum([sum(self.data[i]) for i in range(self.dim[0])])])
+				return sum([sum(self.data[i]) for i in range(self.dim[0])])
 		
 
 	def Kronecker_product(self, other):
@@ -74,7 +83,7 @@ class Matrix(Matrix_base):
 			for aj in range(self.dim[1]):
 				for bi in range(d0):
 					for bj in range(d1):
-						res[ai*d0+bi][aj*d1+bj]=self.data[ai][aj]*other.data[bi][bj]
+						res.data[ai*d0+bi][aj*d1+bj]=self.data[ai][aj]*other.data[bi][bj]
 		return res
 	
 	def __getitem__(self, key):
@@ -134,20 +143,20 @@ class Matrix(Matrix_base):
 		if self.dim[0]!=self.dim[1]:
 			raise ValueError('The matrix should be a square matrix')
 		# 快速幂
-		res=Matrix.I(self.dim[0])
+		res=I(self.dim[0])
 		t_m=self.copy()
 		while n>0:
 			if n&1:
 				res=res.dot(t_m)
-			t_m.dot(t_m)
+			t_m=t_m.dot(t_m)
 			n>>=1
 		return res
 
 	def __add__(self, other):
-		return self.add(other)
+		return Matrix_base_to_Matrix(self.add(other))
 
 	def __sub__(self, other):
-		return self.add(other.kmul(-1))
+		return Matrix_base_to_Matrix(self.add(other.kmul(-1)))
 
 	def __mul__(self, other):
 		if self.dim!=other.dim:
@@ -161,9 +170,8 @@ class Matrix(Matrix_base):
 	def __len__(self):
 		return self.dim[0]*self.dim[1]
 
-	r'''基类中已经实现
-	def __str__(self):
-		pass'''
+	# 基类中已经实现
+	#def __str__(self):
 
 	def det(self):
 		# 原理：初等变换不改变行列式的值
@@ -200,6 +208,8 @@ class Matrix(Matrix_base):
 		t.gauss()
 		return t.get_not_zero_row_num()
 
+def Matrix_base_to_Matrix(matbase):
+	return Matrix(matbase.data)
 def I(n):
 	res=Matrix(dim=(n,n))
 	for i in range(n):
@@ -212,8 +222,8 @@ def narray(dim, init_value=1):
 def arange(start, end, step=1):
 	n=(end-start)//step
 	res=Matrix(dim=(1,n))
-	res.data=list(range(start,end,step))
-	pass
+	res.data=[list(range(start,end,step))]
+	return res
 
 def zeros(dim):
 	return Matrix(dim=dim,init_value=0)

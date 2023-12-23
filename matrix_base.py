@@ -2,13 +2,14 @@ import math
 
 class Matrix_base(object):
     #tol控制的是某些运算（高斯消元)以及转字符串的时候的精度
-    def __init__(self, dim, init_value=0,tol=1e-8):
+    #经过单元测试，虽然不知道是否是numpy的问题，但在纯float的精度下四位小数是多次运算后的可靠性的保证
+    def __init__(self, dim, init_value=0,tol=1e-4):
         self.data = [[init_value for _ in range(
             dim[1])] for _ in range(dim[0])]
         self.dim = dim
         self.tol=tol
     
-    def __str__(self):
+    def __repr__(self):
         n=int(abs(math.log10(self.tol)))
         res='['
         for i in range(self.dim[0]):
@@ -27,18 +28,7 @@ class Matrix_base(object):
                 result.data[i][j] = self.data[i][j] + mat.data[i][j]
         return result
 
-    def dot(self, mat):
-        if self.dim[1] != mat.dim[0]:
-            raise ValueError(
-                "Number of columns in the first matrix must be equal to the number of rows in the second matrix.")
-        result = Matrix_base((self.dim[0], mat.dim[1]))
-        for i in range(self.dim[0]):
-            for j in range(mat.dim[1]):
-                for k in range(self.dim[1]):
-                    result.data[i][j] += self.data[i][k] * mat.data[k][j]
-        return result
     # 数乘
-
     def kmul(self, k):
         result = Matrix_base((self.dim[0], self.dim[1]))
         for i in range(self.dim[0]):
