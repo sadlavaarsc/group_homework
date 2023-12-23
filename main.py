@@ -1,7 +1,7 @@
 # Test code for IEEE course final project
 # Fan Cheng, 2024
 
-from minimatrix import *
+import minimatrix as mm
 
 #Test your code here!
 # The following code is only for your reference
@@ -12,11 +12,11 @@ if __name__ == "__main__":
 
     # 创建一个3x3的矩阵A
     data_A = [[1, 2, 3], [6, 5, 4], [7, 8, 9]]
-    A = Matrix(data_A)
+    A = mm.Matrix(data_A)
 
     # 创建一个3x3的矩阵B
     data_B = [[5, 2, 4], [5, 2, 5], [0, 3, 4]]
-    B = Matrix(data_B)
+    B = mm.Matrix(data_B)
 
     # 显示A和B的形状
     print("Shape of A:", A.shape())
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     print("Rank of A:", rank_A)
 
     # 使用arange()函数生成0到24的矩阵
-    m24 = arange(0, 24)
+    m24 = mm.arange(0, 24)
     print("Original matrix m24:")
     print(m24)
 
@@ -78,31 +78,31 @@ if __name__ == "__main__":
 
     print("\n3. Testing zeros() and zeros_like() functions")
 
-    zero_mat = zeros([3, 3])
+    zero_mat = mm.zeros([3, 3])
     print("Zero matrix:")
     print(zero_mat)
 
-    zero_like_m24 = zeros_like(m24)
+    zero_like_m24 = mm.zeros_like(m24)
     print("\nZero matrix like m24:")
     print(zero_like_m24)
 
     print("\n4. Testing ones() and ones_like() functions")
 
-    ones_mat = ones([3, 3])
+    ones_mat = mm.ones([3, 3])
     print("Ones matrix:")
     print(ones_mat)
 
-    ones_like_m24 = ones_like(m24)
+    ones_like_m24 = mm.ones_like(m24)
     print("\nOnes matrix like m24:")
     print(ones_like_m24)
 
     print("\n5. Testing nrandom() and nrandom_like() functions")
 
-    random_mat = nrandom([3, 3])
+    random_mat = mm.nrandom([3, 3])
     print("Random matrix:")
     print(random_mat)
 
-    random_like_m24 = nrandom_like(m24)
+    random_like_m24 = mm.nrandom_like(m24)
     print("\nRandom matrix like m24:")
     print(random_like_m24)
 
@@ -112,12 +112,12 @@ if __name__ == "__main__":
     n = 100
 
     # 生成随机矩阵和向量
-    X = nrandom((m, n))
-    w = nrandom((n,1))
-    e = nrandom((m, 1))
+    X = mm.nrandom((m, n))
+    w = mm.nrandom((n,1))
+    e = mm.nrandom((m, 1))
     # 零均值化
     average=e.sum()/m
-    e=e-Matrix(dim=(m,1),init_value=average)
+    e=e-mm.Matrix(dim=(m,1),init_value=average)
     
     #算Y
     Y=X.dot(w)+e 
