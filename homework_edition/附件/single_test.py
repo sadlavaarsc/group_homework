@@ -9,5 +9,5 @@ data=[[-73, -97, -56, -25, -87],
 a=Matrix(data)
 b=Matrix([[5,7],[2,6]])
 na=np.array(data)
-print(f'{(a**4).dot(a)}')
+print(f'{(a**4).dot(a)=}')
 print(np.linalg.matrix_power(na,4)@na)

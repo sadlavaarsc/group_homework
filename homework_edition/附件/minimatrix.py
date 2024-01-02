@@ -13,29 +13,20 @@ class Matrix_base(object):
             dim[1])] for _ in range(dim[0])]
         self.dim = dim
         self.tol=tol
-	# 用来辅助输出的宽度获取
-    def get_column_widths(self):
-        widths = []
-        for j in range(self.dim[1]):
-            col_width = max(len(format_float_with_max_precision(self.data[i][j], int(abs(math.log10(self.tol)))))
-                            for i in range(self.dim[0]))
-            widths.append(col_width)
-        return widths
-
+    
     def __repr__(self):
-        col_widths = self.get_column_widths()
-        res = '['
+        n=int(abs(math.log10(self.tol)))
+        res='['
         for i in range(self.dim[0]):
-            if i != 0:
-                res += ' '
-            res += '['
+            if i!=0:
+                res+=' '
+            res+='['
             for j in range(self.dim[1]):
-                if j != 0:
-                    res += ' '
-                res += format_float_with_max_precision(self.data[i][j], int(
-                    abs(math.log10(self.tol)))).rjust(col_widths[j])
-            res += ']' if i == self.dim[0] - 1 else ']\n'
-        return res + ']'
+                if j!=0:
+                    res+='\t'
+                res+=f'{format_float_with_max_precision(self.data[i][j],n)}'
+            res+=']' if i==self.dim[0]-1 else']\n'
+        return res+']'
 
     def add(self, mat):
         if self.dim != mat.dim:
@@ -313,18 +304,18 @@ class Matrix(Matrix_base):
 
 	# 基类中已经实现了__repr__，不过这里还是重写一个类似的功能
 	def __str__(self):
-		col_widths = self.get_column_widths()
-		res = '['
+		n=int(abs(math.log10(self.tol)))
+		res='['
 		for i in range(self.dim[0]):
-			if i != 0:
-				res += ' '
-			res += '['
+			if i!=0:
+				res+=' '
+			res+='['
 			for j in range(self.dim[1]):
-				if j != 0:
-					res += ' '
-				res += format_float_with_max_precision(self.data[i][j], int(abs(math.log10(self.tol)))).rjust(col_widths[j])
-			res += ']' if i == self.dim[0] - 1 else ']\n'
-		return res + ']'
+				if j!=0:
+					res+='\t'
+				res+=f'{format_float_with_max_precision(self.data[i][j],n)}'
+			res+=']' if i==self.dim[0]-1 else']\n'
+		return res+']'
 
 	def det(self):
 		# 原理：初等变换不改变行列式的值
