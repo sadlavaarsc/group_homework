@@ -26,7 +26,7 @@ if __name__ == "__main__":
     print("Transpose of A:")
     print(A.T())
     # 计算A的方幂
-    print("A ** cls5:")
+    print("A ** 5:")
     print(A**5)
 
     # 计算A和B的乘积
